@@ -57,15 +57,15 @@ config:
     enforce_metric_name: false
     reject_old_samples: true
     reject_old_samples_max_age: 168h
-  schema:
-    configs:
-      - from: 2019-07-29
-        store: cassandra
-        object_store: cassandra
-        schema: v10
-        index:
-          prefix: index_
-          period: 168h
+#  schema:
+#    configs:
+#      - from: 2019-07-29
+#        store: cassandra
+#        object_store: cassandra
+#        schema: v10
+#        index:
+#          prefix: index_
+#          period: 168h
   server:
     http_listen_port: 8080
     grpc_listen_port: 9095
@@ -76,20 +76,20 @@ config:
     grpc_client_config:
       max_recv_msg_size: 104857600
       max_send_msg_size: 104857600
-      use_gzip_compression: true
+      grpc_compression: "gzip"
   # See https://github.com/cortexproject/cortex/blob/master/docs/configuration/config-file-reference.md#storage_config
   storage:
     engine: chunks
-    cassandra:
-      addresses: # configure cassandra addresses here.
-      keyspace: cortex # configure desired keyspace here.
-      auth: true
-      username: # configure cassandra user here.
-      password: # configure cassandra password here.
-    azure:
-      container_name: # configure azure blob container name here.
-      account_name: # configure azure storage account name here.
-      account_key: # configure azure storage account key here.
+#    cassandra:
+#      addresses: # configure cassandra addresses here.
+#      keyspace: cortex # configure desired keyspace here.
+#      auth: true
+#      username: # configure cassandra user here.
+#      password: # configure cassandra password here.
+#    azure:
+#      container_name: # configure azure blob container name here.
+#      account_name: # configure azure storage account name here.
+#      account_key: # configure azure storage account key here.
     # aws:
     #   dynamodb:
     #     dynamodb_url:
@@ -115,16 +115,16 @@ config:
         expiration: 1h
       memcached_client:
         timeout: 1s
-  chunk_store:
-    max_look_back_period: 0s
-    chunk_cache_config:
-      memcached:
-        expiration: 1h
-      memcached_client:
-        timeout: 1s
-  table_manager:
-    retention_deletes_enabled: false
-    retention_period: 0s
+#  chunk_store:
+#    max_look_back_period: 0s
+#    chunk_cache_config:
+#      memcached:
+#        expiration: 1h
+#      memcached_client:
+#        timeout: 1s
+#  table_manager:
+#    retention_deletes_enabled: false
+#    retention_period: 0s
   distributor:
     shard_by_all_labels: true
     pool:
@@ -166,13 +166,13 @@ alertmanager:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 10m
-      memory: 32Mi
+  resources: {}
+#    limits:
+#      cpu: 200m
+#      memory: 256Mi
+#    requests:
+#      cpu: 10m
+#      memory: 32Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -317,13 +317,13 @@ distributor:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 100m
-      memory: 512Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 100m
+#      memory: 512Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -399,13 +399,13 @@ ingester:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 100m
-      memory: 512Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 100m
+#      memory: 512Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -521,13 +521,13 @@ ruler:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 10m
-      memory: 32Mi
+  resources: {}
+#    limits:
+#      cpu: 200m
+#      memory: 256Mi
+#    requests:
+#      cpu: 10m
+#      memory: 32Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -585,13 +585,13 @@ querier:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 50m
-      memory: 128Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 50m
+#      memory: 128Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -661,13 +661,13 @@ query_frontend:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 256Mi
-    requests:
-      cpu: 10m
-      memory: 32Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 256Mi
+#    requests:
+#      cpu: 10m
+#      memory: 32Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -737,13 +737,13 @@ table_manager:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 10m
-      memory: 32Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 10m
+#      memory: 32Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -801,13 +801,13 @@ configs:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 10m
-      memory: 32Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 10m
+#      memory: 32Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -873,13 +873,13 @@ nginx:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 10m
-      memory: 16Mi
+  resources: {}
+#    limits:
+#      cpu: 100m
+#      memory: 128Mi
+#    requests:
+#      cpu: 10m
+#      memory: 16Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -937,13 +937,13 @@ store_gateway:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 100m
-      memory: 512Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 100m
+#      memory: 512Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -1050,13 +1050,13 @@ compactor:
     annotations: {}
     labels: {}
 
-  resources:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 100m
-      memory: 512Mi
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 100m
+#      memory: 512Mi
 
   ## Additional Cortex container arguments, e.g. log level (debug, info, warn, error)
   extraArgs:
@@ -1154,6 +1154,75 @@ compactor:
   extraVolumeMounts: []
   extraPorts: []
   env: []
+
+gateway:
+  enabled: false
+  replicas: 3
+  http_listen_port: 80
+  image:
+    repository: zodiac12k/cortex-gateway
+    tag: v1.0.1
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 80
+    annotations: {}
+    labels: {}
+
+  resources: {}
+  #    limits:
+  #      memory: 100Mi
+  #    requests:
+  #      cpu: 300m
+  #      memory: 30Mi
+
+  extraArgs: {}
+
+  ## Pod Labels
+  podLabels: {}
+
+  ## Pod Annotations
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "http-metrics"
+
+  nodeSelector: {}
+  affinity: {}
+  annotations: {}
+
+  livenessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /health
+      port: 80
+      scheme: HTTP
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+  readinessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /health
+      port: 80
+      scheme: HTTP
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+
+  securityContext: {}
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+
+  terminationGracePeriodSeconds: 10
+
+  tolerations: []
+  initContainers: []
+  env: []
+  jwt_secret:
 
 # chunk caching
 memcached:

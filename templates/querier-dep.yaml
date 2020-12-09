@@ -59,12 +59,15 @@ spec:
           args:
             - "-target=querier"
             - "-config.file=/etc/cortex/cortex.yaml"
-            - "-querier.frontend-address={{ template "cortex.fullname" . }}-query-frontend-headless.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.query_frontend.service.grpc_port}}"
+            - "-querier.frontend-address={{ template "cortex.fullname" . }}-query-frontend-headless.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.config.server.grpc_listen_port}}"
             {{- if .Values.memcached.enabled }}
             - "-store.chunks-cache.memcached.addresses=dns+{{ template "cortex.fullname" . }}-memcached.{{ .Release.Namespace }}.svc.cluster.local:11211"
             {{- end }}
             {{- if index .Values "memcached-index-read" "enabled" }}
             - "-store.index-cache-read.memcached.addresses=dns+{{ template "cortex.fullname" . }}-memcached-index-read.{{ .Release.Namespace }}.svc.cluster.local:11211"
+            {{- end }}
+            {{- if eq .Values.config.storage.engine "blocks" }}
+            - "-experimental.querier.store-gateway-addresses=dns+{{ template "cortex.fullname" . }}-store-gateway-headless.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.config.server.grpc_listen_port}}"
             {{- end }}
           {{- range $key, $value := .Values.querier.extraArgs }}
             - "-{{ $key }}={{ $value }}"

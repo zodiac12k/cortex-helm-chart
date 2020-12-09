@@ -1,6 +1,6 @@
 apiVersion: v2
-version: 0.1.2
-appVersion: v1.1.0
+version: 0.1.3
+appVersion: v1.3.0
 description: 'Cortex'
 engine: gotpl
 home: https://cortexmetrics.io/
@@ -18,6 +18,21 @@ dependencies:
     version: 3.2.3
     repository: https://kubernetes-charts.storage.googleapis.com/
     condition: memcached.enabled
+  - name: memcached
+    alias: memcached-index
+    version: 3.2.3
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: memcached-index.enabled
+  - name: memcached
+    alias: memcached-chunks
+    version: 3.2.3
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: memcached-chunks.enabled
+  - name: memcached
+    alias: memcached-metadata
+    version: 3.2.3
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    condition: memcached-metadata.enabled
   - name: memcached
     alias: memcached-index-read
     version: 3.2.3
