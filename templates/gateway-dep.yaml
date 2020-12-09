@@ -1,0 +1,119 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "cortex.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "cortex.name" . }}-gateway
+    chart: {{ template "cortex.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    {{- toYaml .Values.gateway.annotations | nindent 4 }}
+spec:
+  replicas: {{ .Values.gateway.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "cortex.name" . }}-gateway
+      release: {{ .Release.Name }}
+  strategy:
+    {{- toYaml .Values.gateway.strategy | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cortex.name" . }}-gateway
+        name: {{ template "cortex.name" . }}-gateway
+        release: {{ .Release.Name }}
+        {{- with .Values.gateway.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- with .Values.gateway.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "cortex.serviceAccountName" . }}
+    {{- if .Values.gateway.priorityClassName }}
+      priorityClassName: {{ .Values.gateway.priorityClassName }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.gateway.securityContext | nindent 8 }}
+      initContainers:
+      {{- toYaml .Values.gateway.initContainers | nindent 8 }}
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+      {{- end}}
+      {{- end }}
+      containers:
+        - name: gateway
+          image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag }}"
+          imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
+          args:
+            - -server.http-listen-port=80
+            - -server.grpc-max-send-msg-size-bytes=31457280
+            - -server.grpc-max-recv-msg-size-bytes=31457280
+            - -gateway.distributor.address=http://{{ template "cortex.fullname" . }}-distributor.{{ .Release.Namespace }}.svc.cluster.local:8080
+            - -gateway.query-frontend.address=http://{{ template "cortex.fullname" . }}-query-frontend.{{ .Release.Namespace }}.svc.cluster.local:8080
+            - -gateway.ruler.address=http://{{ template "cortex.fullname" . }}-ruler.{{ .Release.Namespace }}.svc.cluster.local:8080
+            - -gateway.alertmanager.address=http://{{ template "cortex.fullname" . }}-alertmanager.{{ .Release.Namespace }}.svc.cluster.local:8080
+            - -gateway.configs.address=http://{{ template "cortex.fullname" . }}-configs.{{ .Release.Namespace }}.svc.cluster.local:8080
+            - -gateway.auth.jwt-secret=$(JWT_SECRET)
+          {{- if .Values.gateway.extraArgs }}
+            {{- range $key, $value := .Values.gateway.extraArgs }}
+            - "-{{ $key }}={{ $value }}"
+          {{- end }}
+          {{- end }}
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: jwt_secret
+                  name: cortex-gateway-secret
+            - name: JAEGER_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            - name: JAEGER_SAMPLER_TYPE
+              value: ratelimiting
+            - name: JAEGER_SAMPLER_PARAM
+              value: "7"
+          livenessProbe:
+            {{- toYaml .Values.gateway.livenessProbe | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.gateway.http_listen_port }}
+              name: http-metrics
+              protocol: TCP
+          readinessProbe:
+            {{- toYaml .Values.gateway.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.gateway.resources | nindent 12 }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      automountServiceAccountToken: false
+      nodeSelector:
+        {{- toYaml .Values.gateway.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.gateway.affinity | nindent 8 }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app:  {{ template "cortex.name" . }}-gateway
+                  release: {{ .Release.Name }}
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app:  {{ template "cortex.name" . }}-gateway
+                  release: {{ .Release.Name }}
+              topologyKey: kubernetes.io/hostname
+            weight: 20
+      tolerations:
+        {{- toYaml .Values.gateway.tolerations | nindent 8 }}
+{{- end }}
