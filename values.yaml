@@ -3,9 +3,8 @@
 
 image:
   repository: quay.io/cortexproject/cortex
-  tag: v1.1.0
+  tag: v1.4.0
   pullPolicy: IfNotPresent
-
 
   ## Optionally specify an array of imagePullSecrets.
   ## Secrets must be manually created in the namespace.
@@ -13,6 +12,12 @@ image:
   ##
   # pullSecrets:
   #   - myRegistrKeySecretName
+
+## Kubernetes cluster DNS domain
+clusterDomain: cluster.local
+
+tags:
+  blocks-storage-memcached: false
 
 ingress:
   enabled: true
@@ -36,6 +41,7 @@ serviceAccount:
 useExternalConfig: false
 externalConfigSecretName: 'secret-with-config.yaml'
 externalConfigVersion: '0'
+
 config:
   auth_enabled: false
   ingester:
@@ -59,12 +65,15 @@ config:
     reject_old_samples_max_age: 168h
 #  schema:
 #    configs:
-#      - from: 2019-07-29
+#      - from: 2020-11-01
 #        store: cassandra
 #        object_store: cassandra
 #        schema: v10
 #        index:
 #          prefix: index_
+#          period: 168h
+#        chunks:
+#          prefix: chunks_
 #          period: 168h
   server:
     http_listen_port: 8080
@@ -142,6 +151,8 @@ config:
           expiration: 1h
         memcached_client:
           timeout: 1s
+  ruler:
+    enable_alertmanager_discovery: false
   alertmanager:
     external_url: '/api/prom/alertmanager'
   frontend:
@@ -165,6 +176,9 @@ alertmanager:
   service:
     annotations: {}
     labels: {}
+
+  serviceMonitor:
+    enabled: false
 
   resources: {}
 #    limits:
@@ -317,6 +331,9 @@ distributor:
     annotations: {}
     labels: {}
 
+  serviceMonitor:
+    enabled: false
+
   resources: {}
 #    limits:
 #      cpu: 1
@@ -399,6 +416,9 @@ ingester:
     annotations: {}
     labels: {}
 
+  serviceMonitor:
+    enabled: false
+
   resources: {}
 #    limits:
 #      cpu: 1
@@ -467,7 +487,6 @@ ingester:
     ##
     subPath: ''
 
-
     ## Ingester data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
     ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -520,6 +539,9 @@ ruler:
   service:
     annotations: {}
     labels: {}
+
+  serviceMonitor:
+    enabled: false
 
   resources: {}
 #    limits:
@@ -584,6 +606,9 @@ querier:
   service:
     annotations: {}
     labels: {}
+
+  serviceMonitor:
+    enabled: false
 
   resources: {}
 #    limits:
@@ -661,6 +686,9 @@ query_frontend:
     annotations: {}
     labels: {}
 
+  serviceMonitor:
+    enabled: false
+
   resources: {}
 #    limits:
 #      cpu: 1
@@ -737,6 +765,9 @@ table_manager:
     annotations: {}
     labels: {}
 
+  serviceMonitor:
+    enabled: false
+
   resources: {}
 #    limits:
 #      cpu: 1
@@ -800,6 +831,9 @@ configs:
   service:
     annotations: {}
     labels: {}
+
+  serviceMonitor:
+    enabled: false
 
   resources: {}
 #    limits:
@@ -873,6 +907,9 @@ nginx:
     annotations: {}
     labels: {}
 
+  serviceMonitor:
+    enabled: false
+
   resources: {}
 #    limits:
 #      cpu: 100m
@@ -937,6 +974,9 @@ store_gateway:
     annotations: {}
     labels: {}
 
+  serviceMonitor:
+    enabled: false
+
   resources: {}
 #    limits:
 #      cpu: 1
@@ -1000,7 +1040,6 @@ store_gateway:
     ##
     subPath: ''
 
-
     ## Store-gateway data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
     ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -1049,6 +1088,9 @@ compactor:
   service:
     annotations: {}
     labels: {}
+
+  serviceMonitor:
+    enabled: false
 
   resources: {}
 #    limits:
@@ -1112,7 +1154,6 @@ compactor:
     ## Useful if the volume's root directory is not empty
     ##
     subPath: ''
-
 
     ## compactor data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
@@ -1327,6 +1368,86 @@ memcached-index-write:
   #             operator: In
   #             values:
   #             - cortex-memcached
+
+memcached-frontend:
+  enabled: false
+  replicaCount: 2
+  #dpdbMinAvailable: 1
+  #image: memcached:1.5.7-alpine
+  memcached:
+    maxItemMemory: 3840
+    extraArgs:
+      - -I 32m
+    threads: 32
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 10m
+    limits:
+      memory: 4Gi
+      cpu: 1
+  metrics:
+    enabled: true
+
+memcached-blocks-index:
+  # enabled/disabled via the tags.blocks-storage-memcached boolean
+  replicaCount: 2
+  #dpdbMinAvailable: 1
+  #image: memcached:1.5.7-alpine
+  memcached:
+    maxItemMemory: 3840
+    extraArgs:
+      - -I 32m
+    threads: 32
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 10m
+    limits:
+      memory: 4Gi
+      cpu: 1
+  metrics:
+    enabled: true
+
+memcached-blocks:
+  # enabled/disabled via the tags.blocks-storage-memcached boolean
+  replicaCount: 2
+  #dpdbMinAvailable: 1
+  #image: memcached:1.5.7-alpine
+  memcached:
+    maxItemMemory: 3840
+    extraArgs:
+      - -I 32m
+    threads: 32
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 10m
+    limits:
+      memory: 4Gi
+      cpu: 1
+  metrics:
+    enabled: true
+
+memcached-blocks-metadata:
+  # enabled/disabled via the tags.blocks-storage-memcached boolean
+  replicaCount: 2
+  #dpdbMinAvailable: 1
+  #image: memcached:1.5.7-alpine
+  memcached:
+    maxItemMemory: 3840
+    extraArgs:
+      - -I 32m
+    threads: 32
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 10m
+    limits:
+      memory: 4Gi
+      cpu: 1
+  metrics:
+    enabled: true
 
 configsdb_postgresql:
   enabled: false
