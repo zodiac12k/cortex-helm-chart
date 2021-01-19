@@ -1,4 +1,4 @@
-{{- if and .Values.ingress.enabled -}}
+{{- if and .Values.ingress.enabled .Values.nginx.enabled -}}
 {{- $fullName := include "cortex.fullname" . -}}
 {{- $svcPort := .Values.nginx.http_listen_port -}}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -39,7 +39,7 @@ spec:
         {{- range .paths }}
           - path: {{ . }}
             backend:
-              serviceName: {{ $fullName }}-gateway
+              serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}
         {{- end }}
   {{- end }}
